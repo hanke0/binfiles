@@ -14,6 +14,7 @@ docker rm -v "$id"
 mv ./tmp/app ./tmp/rsshub
 cd ./tmp
 date +%Y-%m-%d >./rsshub/version.txt
+cp -f ./rsshub/version.txt ../rsshub.version
 cat >./rsshub/run.sh <<EOF
 #!/bin/bash
 

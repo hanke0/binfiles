@@ -16,6 +16,7 @@ docker rm -v "$id"
 cd ./tmp/
 
 ./vaultwarden/vaultwarden --version | grep -Eo '[0-9]+.[0-9]+\.[0-9]+' >./vaultwarden/version.txt
+cp -f ./vaultwarden/version.txt ../vaultwarden.version
 cat >./vaultwarden/run.sh <<EOF
 #!/bin/bash
 
