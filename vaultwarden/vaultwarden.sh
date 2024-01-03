@@ -2,7 +2,6 @@
 
 set -e
 
-
 cd "$(dirname "$0")"
 pwd
 docker pull vaultwarden/server:latest-alpine
@@ -22,3 +21,7 @@ cat >./vaultwarden/run.sh <<EOF
 
 vaultwarden
 EOF
+
+tar czf ../vaultwarden.tar.gz ./vaultwarden
+cd ..
+rm -rf ./tmp
