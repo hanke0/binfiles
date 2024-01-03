@@ -14,7 +14,7 @@ cd ./tmp/chatgptnextweb
 git reset --hard d17000975fe58c84e576f89be552c76b91bcb827
 yarn install
 yarn build
-dst=../tmp/chatgpt-next-web
+dst=../chatgpt-next-web
 rm -rf "$dst"
 mkdir -p "$dst/public"
 rsync -a ./public/ "$dst/public/"
