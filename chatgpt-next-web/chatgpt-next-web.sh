@@ -23,8 +23,8 @@ mkdir -p "$dst/.next/static"
 rsync -a .next/static/ "$dst/.next/static/"
 mkdir -p "$dst/.next/server"
 rsync -a .next/server/ "$dst/.next/server/"
-echo "v2.10.1" >"$dst/version.txt"
-cp -f "$dst/version.txt" ../../chatgpt-next-web.version
+echo "v2.10.1" >"$dst/chatgpt-next-web.version"
+cp -f "$dst/chatgpt-next-web.version" ../../chatgpt-next-web.version
 cat >"$dst/run.sh" <<EOF
 #!/usr/bin/env bash
 

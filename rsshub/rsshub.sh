@@ -13,8 +13,8 @@ docker cp "$id:/app" ./tmp/
 docker rm -v "$id"
 mv ./tmp/app ./tmp/rsshub
 cd ./tmp
-date +%Y-%m-%d >./rsshub/version.txt
-cp -f ./rsshub/version.txt ../rsshub.version
+date +%Y-%m-%d >./rsshub/rsshub.version
+cp -f ./rsshub/rsshub.version ../rsshub.version
 cat >./rsshub/run.sh <<EOF
 #!/bin/bash
 

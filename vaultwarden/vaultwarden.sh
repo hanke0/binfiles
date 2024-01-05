@@ -4,8 +4,9 @@ set -e
 
 cd "$(dirname "$0")"
 pwd
-docker pull vaultwarden/server:latest-alpine
-id=$(docker create vaultwarden/server:latest-alpine)
+tag=1.30.1-alpine
+docker pull vaultwarden/server:$tag
+id=$(docker create vaultwarden/server:$tag)
 rm -rf ./tmp
 mkdir -p ./tmp
 mkdir -p ./tmp/vaultwarden
@@ -15,8 +16,8 @@ docker rm -v "$id"
 
 cd ./tmp/
 
-./vaultwarden/vaultwarden --version | grep -Eo '[0-9]+.[0-9]+\.[0-9]+' >./vaultwarden/version.txt
-cp -f ./vaultwarden/version.txt ../vaultwarden.version
+./vaultwarden/vaultwarden --version | grep -Eo '[0-9]+.[0-9]+\.[0-9]+' >./vaultwarden/vaultwarden.version
+cp -f ./vaultwarden/vaultwarden.version ../vaultwarden.version
 cat >./vaultwarden/run.sh <<EOF
 #!/bin/bash
 
