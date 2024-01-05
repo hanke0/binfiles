@@ -6,31 +6,21 @@ pwd
 rm -rf ./tmp
 mkdir -p ./tmp
 
-# v2.10.1
-git clone -b v2.10.1 https://github.com/Yidadaa/ChatGPT-Next-Web \
-    ./tmp/chatgptnextweb
+tag=v2.10.1
+docker pull yidadaa/chatgpt-next-web:$tag
+id=$(docker create yidadaa/chatgpt-next-web:$tag)
+docker cp "$id:/app" ./tmp/
+docker rm -v "$id"
+mv ./tmp/app ./tmp/chatgpt-next-web
 
-cd ./tmp/chatgptnextweb
-git reset --hard d17000975fe58c84e576f89be552c76b91bcb827
-yarn install
-yarn build
-dst=../chatgpt-next-web
-rm -rf "$dst"
-mkdir -p "$dst/public"
-rsync -a ./public/ "$dst/public/"
-rsync -a .next/standalone/ "$dst/"
-mkdir -p "$dst/.next/static"
-rsync -a .next/static/ "$dst/.next/static/"
-mkdir -p "$dst/.next/server"
-rsync -a .next/server/ "$dst/.next/server/"
-echo "v2.10.1" >"$dst/chatgpt-next-web.version"
-cp -f "$dst/chatgpt-next-web.version" ../../chatgpt-next-web.version
-cat >"$dst/run.sh" <<EOF
+echo "$tag" >"./tmp/chatgpt-next-web/chatgpt-next-web.version"
+cp -f "./tmp/chatgpt-next-web/chatgpt-next-web.version" ./chatgpt-next-web.version
+cat >"./tmp/chatgpt-next-web/run.sh" <<EOF
 #!/usr/bin/env bash
 
 node server.js
 EOF
-cd ..
+cd ./tmp/
 tar czf ../chatgpt-next-web.tar.gz ./chatgpt-next-web
-cd ..
+cd ../
 rm -rf ./tmp
