@@ -3,6 +3,7 @@
 repos=(
     Yidadaa/ChatGPT-Next-Web 2.10.1
     dani-garcia/vaultwarden 1.30.1
+    timvisee/send 3.4.23
 )
 
 trip_version() {
@@ -30,8 +31,16 @@ version_satisfy() {
 dorepo() {
     local data version url
     data=$(curl -sSL --fail "https://api.github.com/repos/$1/releases/latest")
-    version=$(jq -r ".name" <<<"$data")
-    url=$(jq -r ".html_url" <<<"$data")
+    if [ -z "$data" ]; then
+        data=$(curl -sSL --fail "https://api.github.com/repos/$1/tags")
+        data=$(jq -r '.[0] | values' <<<"$data")
+    fi
+    version=$(jq -r ".name | values" <<<"$data")
+    url=$(jq -r ".html_url | values" <<<"$data")
+    if [ -z "$version" ]; then
+        echo >&2 "Get $1 version fails"
+        return
+    fi
     if ! version_satisfy "$2" "$version"; then
         if [ -t 1 ]; then
             echo -e "\033[0;31m$1 has new release: $version, $url\033[0m"
