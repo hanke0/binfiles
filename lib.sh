@@ -3,15 +3,18 @@
 docker_dest=./tmp/docker
 
 make_docker_tarball() {
-    local image name version
+    local image name version entrypoint
     image="$1"
     name="$2"
     version="$3"
-    shift 3
+    entrypoint="$4"
+    shift 4
 
     clean_docker
+    mkdir -p "$docker_dest/$name"
     extract_from_docker_image "$image" "$@"
     write_version_into_docker "$name" "$version"
+    echo "$entrypoint" >"$docker_dest/$name/run.sh"
     make_tarball_from_docker "$name"
 }
 

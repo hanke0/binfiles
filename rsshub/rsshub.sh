@@ -4,23 +4,19 @@ set -e
 
 cd "$(dirname "$0")"
 pwd
-docker pull diygod/rsshub:latest
-id=$(docker create diygod/rsshub:latest)
-rm -rf ./tmp
-mkdir -p ./tmp
-rm -rf ./tmp/app
-docker cp "$id:/app" ./tmp/
-docker rm -v "$id"
-mv ./tmp/app ./tmp/rsshub
-cd ./tmp
-date +%Y-%m-%d >./rsshub/rsshub.version
-cp -f ./rsshub/rsshub.version ../rsshub.version
-cat >./rsshub/run.sh <<EOF
-#!/bin/bash
+
+. ../lib.sh
+
+entrypoint=$(
+    cat <<EOF
+#!/bin/sh
 
 yarn start
 EOF
+)
 
-tar czf ../rsshub.tar.gz ./rsshub
-cd ..
-rm -rf ./tmp
+make_docker_tarball \
+    diygod/rsshub:latest \
+    rsshub date +%Y-%m-%d \
+    "$entrypoint" \
+    /app /rsshub
