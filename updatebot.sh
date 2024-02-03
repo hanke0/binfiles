@@ -2,7 +2,7 @@
 
 repos=(
     Yidadaa/ChatGPT-Next-Web 2.10.1
-    dani-garcia/vaultwarden 1.30.1
+    dani-garcia/vaultwarden 1.30.3
     timvisee/send 3.4.23
     aaamoon/copilot-gpt4-service 0.1.0
 )

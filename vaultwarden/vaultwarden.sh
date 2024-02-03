@@ -16,8 +16,8 @@ EOF
 )
 
 make_docker_tarball \
-    vaultwarden/server:1.30.1-alpine \
-    vaultwarden 1.30.1 \
+    vaultwarden/server:1.30.3-alpine \
+    vaultwarden 1.30.3 \
     "$entrypoint" \
     /vaultwarden /vaultwarden/vaultwarden \
     /web-vault /vaultwarden/web-vault
