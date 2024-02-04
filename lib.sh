@@ -28,7 +28,6 @@ extract_from_docker_image() {
     image="$1"
     shift
 
-    docker pull "$image"
     id=$(docker create "$image")
 
     while [ $# -gt 0 ]; do
