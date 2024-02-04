@@ -40,7 +40,7 @@ sed -E \
     -e '/^uid ?= www-data/d' \
     -e '/^gid ?=/d' \
     -e '/stats ?=/d' \
-    -e 's#pidfile ?=.+#pidfile = /var/run/linkding.pid#' \
+    -e 's#pidfile ?=.+#pidfile = /tmp/linkding.pid#' \
     uwsgi.ini >uwsgi-run.ini
 
 # Run database migration
