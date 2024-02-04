@@ -29,14 +29,16 @@ mkdir -p data
 # Create favicon folder if it does not exist
 mkdir -p data/favicons
 
-ln -sf "$cur/data" "$cur/app/data"
+if [ ! -e "$cur/app/data" ]; then
+    ln -sf "$cur/data" "$cur/app/data"
+fi
 
 cd app
 
 sed -E \
     -e '/^uid ?= www-data/d' \
     -e '/^gid ?=/d' \
-    -e 'stats ?=' \
+    -e '/stats ?=/d' \
     -e 's#pidfile ?=.+#pidfile = /var/run/linkding.pid#' \
     uwsgi.ini >uwsgi-run.ini
 
