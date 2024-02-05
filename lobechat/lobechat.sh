@@ -16,7 +16,7 @@ EOF1
 )
 
 make_docker_tarball \
-    lobehub/lobe-chat:v0.122.9 \
-    lobechat 0.122.9 \
+    lobehub/lobe-chat:v0.123.0 \
+    lobechat 0.123.0 \
     "$entrypoint" \
     /app /lobechat/app

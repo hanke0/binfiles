@@ -7,7 +7,7 @@ repos=(
     aaamoon/copilot-gpt4-service 0.1.0
     gethomepage/homepage 0.8.7
     sissbruecker/linkding 1.24.0
-    lobehub/lobe-chat 0.122.9
+    lobehub/lobe-chat 0.123.0
 )
 
 trip_version() {
