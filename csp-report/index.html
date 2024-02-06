@@ -1,0 +1,112 @@
+<html>
+
+<head>
+    <title>CSP Report</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <style>
+        .container {
+            font-family: Arial, sans-serif;
+            margin: auto;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th,
+        td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <table>
+            <thead>
+                <tr id="thead">
+                    <th>blocked-uri</th>
+                    <th>document-uri</th>
+                    <th>effective-directive</th>
+                    <th>original-policy</th>
+                    <th>referrer</th>
+                    <th>violated-directive</th>
+                </tr>
+            </thead>
+            <tbody id="tbody">
+            </tbody>
+    </div>
+</body>
+<script>
+    function readJSONData() {
+        // Create a new XMLHttpRequest object
+        var xhr = new XMLHttpRequest();
+        // Set the request URL
+        xhr.open('GET', '/csp-report.log', true);
+        // Define the onload event handler
+        xhr.onload = function () {
+            console.log(xhr);
+            if (xhr.status !== 200) {
+                alert('Request failed.  Returned status of ' + xhr.status);
+                return;
+            }
+            // Get the JSON data from the response
+            var lines = xhr.responseText.split('\n');
+            var columns = [];
+            var children = document.getElementById("thead").children;
+            for (var i = 0; i < children.length; i++) {
+                columns.push(children[i].textContent);
+            }
+            // Create the table header
+            var table = '';
+            // Iterate over each JSON object and create table rows
+            for (var i = 0; i < lines.length; i++) {
+                if (lines[i] === '') {
+                    continue;
+                }
+                try {
+                    var obj = JSON.parse(lines[i]);
+                } catch (e) {
+                    console.log(e);
+                    continue;
+                }
+                table += '<tr>';
+                for (var j = 0; j < columns.length; j++) {
+                    table += '<td>' + escapeHTML(obj[columns[j]]) + '</td>';
+                }
+                table += '</tr>'
+            }
+            document.getElementById("tbody").innerHTML = table;
+        };
+        xhr.onerror = function (ev) {
+            console.log(ev);
+            alert('Error occurred while reading the file' + ev);
+        };
+        // Send the request
+        xhr.send();
+    }
+
+    readJSONData();
+
+    function escapeHTML(text) {
+        var map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+
+        return text.replace(/[&<>"']/g, function (m) { return map[m]; });
+    }
+</script>
+
+</html>
