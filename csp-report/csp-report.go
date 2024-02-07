@@ -2,6 +2,7 @@ package main
 
 import (
 	_ "embed"
+	"time"
 
 	"encoding/hex"
 	"encoding/json"
@@ -114,51 +115,73 @@ func logit(data *CSPReport) {
 	}
 }
 
+type loggingResponseWriter struct {
+	http.ResponseWriter
+	statusCode int
+}
+
+func NewLoggingResponseWriter(w http.ResponseWriter) *loggingResponseWriter {
+	return &loggingResponseWriter{w, http.StatusOK}
+}
+
+func (lrw *loggingResponseWriter) WriteHeader(code int) {
+	lrw.statusCode = code
+	lrw.ResponseWriter.WriteHeader(code)
+}
+
 type handler func(w http.ResponseWriter, r *http.Request)
 
-func handle(pattern, method string, f handler) {
+func handle(pattern, method string, auth bool, f handler) {
 	http.HandleFunc(pattern, func(w http.ResponseWriter, r *http.Request) {
+		startTime := time.Now()
+		lw := NewLoggingResponseWriter(w)
+		w = lw
+		defer func() {
+			log.Printf("%s %s %s %s", r.Method, r.URL.Path, lw.statusCode, time.Since(startTime))
+		}()
 		defer r.Body.Close()
 		if r.Method != method {
-			http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+			http.Error(lw, "Method Not Allowed", http.StatusMethodNotAllowed)
 			return
 		}
 		const maxBodySize = 1 << 20
 		r.Body = http.MaxBytesReader(w, r.Body, maxBodySize)
-		f(w, r)
+		if auth {
+			authMiddleware(lw, r, f)
+		} else {
+			f(lw, r)
+		}
 	})
 }
 
-func authHandle(pattern, method string, f handler) {
-	handle(pattern, method, func(w http.ResponseWriter, r *http.Request) {
-		if err := r.ParseForm(); err != nil {
-			http.Error(w, "Bad form", http.StatusBadRequest)
-			return
-		}
-		if r.Form.Has("token") {
-			token := r.Form.Get("token")
-			if !authSuccess(token) {
-				w.Header().Add("Set-Cookie", "token=; Max-Age=0; Path=/; HttpOnly; SameSite=Strict")
-				http.Error(w, "Unauthorized", http.StatusUnauthorized)
-				return
-			}
-			w.Header().Add("Set-Cookie", "token="+hex.EncodeToString([]byte(token))+"; Path=/; HttpOnly; SameSite=Strict")
-			http.Redirect(w, r, r.URL.Path, http.StatusSeeOther)
-			return
-		}
-
-		cookie, err := r.Cookie("token")
-		if err != nil {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
-		if cookie.Value != authToken {
+func authMiddleware(w http.ResponseWriter, r *http.Request, f handler) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Bad form", http.StatusBadRequest)
+		return
+	}
+	if r.Form.Has("token") {
+		token := r.Form.Get("token")
+		if !authSuccess(token) {
 			w.Header().Add("Set-Cookie", "token=; Max-Age=0; Path=/; HttpOnly; SameSite=Strict")
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
-		f(w, r)
-	})
+		w.Header().Add("Set-Cookie", "token="+hex.EncodeToString([]byte(token))+"; Path=/; HttpOnly; SameSite=Strict")
+		http.Redirect(w, r, r.URL.Path, http.StatusSeeOther)
+		return
+	}
+
+	cookie, err := r.Cookie("token")
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+	if cookie.Value != authToken {
+		w.Header().Add("Set-Cookie", "token=; Max-Age=0; Path=/; HttpOnly; SameSite=Strict")
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+	f(w, r)
 }
 
 var authToken = ""
@@ -224,10 +247,10 @@ func main() {
 	authToken = hex.EncodeToString([]byte(os.Getenv("TOKEN")))
 	cspWriter = NewRotateWriter("csp-report.log", 1<<20)
 
-	handle("/csp-report", "POST", cspReport)
-	handle("/csp-test", "GET", cspTest)
-	authHandle("/", "GET", index)
-	authHandle("/csp-report.log", "GET", cspContent)
+	handle("/csp-report", "POST", false, cspReport)
+	handle("/csp-test", "GET", false, cspTest)
+	handle("/", "GET", true, index)
+	handle("/csp-report.log", "GET", true, cspContent)
 	addr := os.Getenv("LISTEN")
 	if addr == "" {
 		addr = "localhost:9096"
