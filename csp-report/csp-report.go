@@ -208,7 +208,7 @@ func unmarshalBody(b []byte) ([]CSPReport, error) {
 		return []CSPReport{a.CSPReport}, nil
 	}
 	var c reportTOBody
-	if err := json.Unmarshal(b, &a); err != nil {
+	if err := json.Unmarshal(b, &c); err != nil {
 		return nil, err
 	}
 	var reports []CSPReport
