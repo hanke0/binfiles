@@ -2,7 +2,6 @@ package main
 
 import (
 	_ "embed"
-	"time"
 
 	"encoding/hex"
 	"encoding/json"
@@ -13,6 +12,7 @@ import (
 	"os"
 	"strconv"
 	"sync"
+	"time"
 )
 
 //go:embed index.html
@@ -90,6 +90,7 @@ func (w *RotateWriter) rotate() (err error) {
 	}
 	// Create a file.
 	w.fp, err = os.Create(w.filename)
+	log.Printf("rotate a new file")
 	return
 }
 
@@ -171,15 +172,17 @@ func authSuccess(token string) bool {
 var cspWriter *RotateWriter
 
 func logit(data []CSPReport) {
+	var n int
 	for _, v := range data {
-		if v.BlockedURI != "" {
-			enc := json.NewEncoder(cspWriter)
-			enc.SetEscapeHTML(false)
-			if err := enc.Encode(data); err != nil {
-				log.Printf("write log error: %s", err)
-			}
+		enc := json.NewEncoder(cspWriter)
+		enc.SetEscapeHTML(false)
+		if err := enc.Encode(v); err != nil {
+			log.Printf("write log error: %s", err)
+		} else {
+			n++
 		}
 	}
+	log.Printf("write %d report logs", n)
 }
 
 type reportURIBody struct {
@@ -280,7 +283,11 @@ var debugMode bool
 
 func main() {
 	authToken = hex.EncodeToString([]byte(os.Getenv("TOKEN")))
-	cspWriter = NewRotateWriter("csp-report.log", 1<<20)
+	length, _ := strconv.Atoi(os.Getenv("MAX_LOG_SIZE"))
+	if length < 1<<20 {
+		length = 1 << 20
+	}
+	cspWriter = NewRotateWriter("csp-report.log", int64(length))
 	debugMode = os.Getenv("DEBUG") == "true"
 
 	handle("/csp-report", "POST", false, cspReport)
