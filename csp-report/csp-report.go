@@ -192,17 +192,42 @@ type reportURIBody struct {
 type reportTOBody []reportTOData
 
 type reportTOData struct {
-	Body CSPReport `json:"csp-report"`
+	Body CSPReport `json:"body"`
 }
 
 // CSPReport 是 CSP 报告的结构体，你可以根据需要增减字段
 type CSPReport struct {
 	BlockedURI         string `json:"blocked-uri" json:"blockedURL"`
-	DocumentURI        string `json:"document-uri" json:"documentURL"`
-	EffectiveDirective string `json:"effective-directive" json:"effectiveDirective"`
-	OriginalPolicy     string `json:"original-policy" json:"originalPolicy"`
-	Referrer           string `json:"referrer" json:"referrer"`
+	DocumentURI        string `json:"document-uri"`
+	EffectiveDirective string `json:"effective-directive"`
+	OriginalPolicy     string `json:"original-policy"`
+	Referrer           string `json:"referrer"`
 	Disposition        string `json:"disposition"`
+}
+
+func (s *CSPReport) UnmarshalJSON(data []byte) error {
+	type Alias CSPReport
+	aux := &struct {
+		BlockedURI         string `json:"blockedURL"`
+		DocumentURI        string `json:"documentURL"`
+		EffectiveDirective string `json:"effectiveDirective"`
+		OriginalPolicy     string `json:"originalPolicy"`
+		Referrer           string `json:"referrer1"`
+		Disposition        string `json:"disposition1"`
+		*Alias
+	}{
+		Alias: (*Alias)(s),
+	}
+	if err := json.Unmarshal(data, aux); err != nil {
+		return err
+	}
+	s.BlockedURI = aux.BlockedURI
+	s.DocumentURI = aux.DocumentURI
+	s.EffectiveDirective = aux.EffectiveDirective
+	s.OriginalPolicy = aux.OriginalPolicy
+	s.Referrer = aux.Referrer
+	s.Disposition = aux.Disposition
+	return nil
 }
 
 func unmarshalBody(b []byte) ([]CSPReport, error) {
