@@ -236,7 +236,8 @@ func cspTest(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, `
 <html>
 <body>
-<img src="https://w.wallhaven.cc/full/jx/wallhaven-jxlwpm.jpg"></img>
+<p>load https://www.example.com/a.js</p>
+<script src="https://www.example.com/a.js"></script>
 </body>
 </html>
 	`)
