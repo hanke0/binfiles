@@ -2,14 +2,15 @@ package main
 
 import (
 	_ "embed"
-	"io"
-	"strconv"
 
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"sync"
 )
 
@@ -206,11 +207,25 @@ func index(w http.ResponseWriter, r *http.Request) {
 	w.Write(indexHTML)
 }
 
+func cspTest(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Header().Set("Content-Security-Policy", "default-src 'self'; image-src 'self';")
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprint(w, `
+<html>
+<body>
+<img src="https://w.wallhaven.cc/full/jx/wallhaven-jxlwpm.jpg"></img>
+</body>
+</html>
+	`)
+}
+
 func main() {
 	authToken = hex.EncodeToString([]byte(os.Getenv("TOKEN")))
 	cspWriter = NewRotateWriter("csp-report.log", 1<<20)
 
 	handle("/csp-report", "POST", cspReport)
+	handle("/csp-test", "GET", cspTest)
 	authHandle("/", "GET", index)
 	authHandle("/csp-report.log", "GET", cspContent)
 	addr := os.Getenv("LISTEN")
