@@ -232,7 +232,8 @@ func index(w http.ResponseWriter, r *http.Request) {
 
 func cspTest(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	w.Header().Set("Content-Security-Policy", "default-src 'self'; image-src 'self'; report-uri /csp-report; report-to /csp-report;")
+	w.Header().Set("Report-To", `{"group":"default","max_age":10886400,"endpoints":[{"url":"/csp-report"}],"include_subdomains":true}`)
+	w.Header().Set("Content-Security-Policy", "default-src 'self'; img-src 'self'; report-uri /csp-report; report-to default;")
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, `
 <html>
