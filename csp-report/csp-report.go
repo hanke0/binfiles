@@ -193,11 +193,24 @@ func authSuccess(token string) bool {
 var cspWriter *RotateWriter
 
 func cspReport(w http.ResponseWriter, r *http.Request) {
-	var dec = json.NewDecoder(r.Body)
 	var data JSONData
-	if err := dec.Decode(&data); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+	if debugMode {
+		b, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		log.Println(string(b))
+		if err := json.Unmarshal(b, &data); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+	} else {
+		var dec = json.NewDecoder(r.Body)
+		if err := dec.Decode(&data); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 	}
 	go logit(&data.CSPReport)
 	w.WriteHeader(http.StatusOK)
@@ -243,9 +256,12 @@ func cspTest(w http.ResponseWriter, r *http.Request) {
 	`)
 }
 
+var debugMode bool
+
 func main() {
 	authToken = hex.EncodeToString([]byte(os.Getenv("TOKEN")))
 	cspWriter = NewRotateWriter("csp-report.log", 1<<20)
+	debugMode = os.Getenv("DEBUG") == "true"
 
 	handle("/csp-report", "POST", false, cspReport)
 	handle("/csp-test", "GET", false, cspTest)
