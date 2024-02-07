@@ -137,7 +137,7 @@ func handle(pattern, method string, auth bool, f handler) {
 		lw := NewLoggingResponseWriter(w)
 		w = lw
 		defer func() {
-			log.Printf("%s %s %s %s", r.Method, r.URL.Path, lw.statusCode, time.Since(startTime))
+			log.Printf("%s %s %d %s", r.Method, r.URL.Path, lw.statusCode, time.Since(startTime))
 		}()
 		defer r.Body.Close()
 		if r.Method != method {
@@ -232,7 +232,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 
 func cspTest(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	w.Header().Set("Content-Security-Policy", "default-src 'self'; image-src 'self';")
+	w.Header().Set("Content-Security-Policy", "default-src 'self'; image-src 'self'; report-uri /csp-report; report-to /csp-report;")
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, `
 <html>
