@@ -186,7 +186,7 @@ func logit(data []CSPReport) {
 }
 
 type reportURIBody struct {
-	CSPReport `json:"csp-report"`
+	CSPReport *CSPReport `json:"csp-report"`
 }
 
 type reportTOBody []reportTOData
@@ -197,7 +197,7 @@ type reportTOData struct {
 
 // CSPReport 是 CSP 报告的结构体，你可以根据需要增减字段
 type CSPReport struct {
-	BlockedURI         string `json:"blocked-uri" json:"blockedURL"`
+	BlockedURI         string `json:"blocked-uri"`
 	DocumentURI        string `json:"document-uri"`
 	EffectiveDirective string `json:"effective-directive"`
 	OriginalPolicy     string `json:"original-policy"`
@@ -205,35 +205,38 @@ type CSPReport struct {
 	Disposition        string `json:"disposition"`
 }
 
-func (s *CSPReport) UnmarshalJSON(data []byte) error {
-	type Alias CSPReport
-	aux := &struct {
-		BlockedURI         string `json:"blockedURL"`
-		DocumentURI        string `json:"documentURL"`
-		EffectiveDirective string `json:"effectiveDirective"`
-		OriginalPolicy     string `json:"originalPolicy"`
-		Referrer           string `json:"referrer1"`
-		Disposition        string `json:"disposition1"`
-		*Alias
-	}{
-		Alias: (*Alias)(s),
+func getNotEmpty(m map[string]interface{}, keys ...string) string {
+	for _, k := range keys {
+		v, ok := m[k]
+		if !ok {
+			continue
+		}
+		if s, ok := v.(string); ok && s != "" {
+			return s
+		}
 	}
-	if err := json.Unmarshal(data, aux); err != nil {
+	return ""
+}
+
+func (s *CSPReport) UnmarshalJSON(data []byte) error {
+	m := map[string]interface{}{}
+	if err := json.Unmarshal(data, &m); err != nil {
 		return err
 	}
-	s.BlockedURI = aux.BlockedURI
-	s.DocumentURI = aux.DocumentURI
-	s.EffectiveDirective = aux.EffectiveDirective
-	s.OriginalPolicy = aux.OriginalPolicy
-	s.Referrer = aux.Referrer
-	s.Disposition = aux.Disposition
+	s.BlockedURI = getNotEmpty(m, "blocked-uri", "blockedURL")
+	s.DocumentURI = getNotEmpty(m, "document-uri", "documentURL")
+	s.EffectiveDirective = getNotEmpty(m, "effective-directive", "effectiveDirective")
+	s.OriginalPolicy = getNotEmpty(m, "original-policy", "originalPolicy")
+	s.Referrer = getNotEmpty(m, "referrer")
+	s.Disposition = getNotEmpty(m, "disposition")
 	return nil
 }
 
 func unmarshalBody(b []byte) ([]CSPReport, error) {
 	var a reportURIBody
-	if err := json.Unmarshal(b, &a); err == nil {
-		return []CSPReport{a.CSPReport}, nil
+	err := json.Unmarshal(b, &a)
+	if err == nil && a.CSPReport != nil {
+		return []CSPReport{*a.CSPReport}, nil
 	}
 	var c reportTOBody
 	if err := json.Unmarshal(b, &c); err != nil {
