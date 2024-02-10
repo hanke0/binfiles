@@ -11,7 +11,7 @@ repos=(
 )
 
 trip_version() {
-    grep -P -o '\d+\.\d+\.\d+' <<<"$*"
+    grep -E -o '[0-9]+\.[0-9]+\.[0-9]+' <<<"$*"
 }
 
 # version_satisfy `nginx -v` 1.21.1
