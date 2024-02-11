@@ -62,8 +62,9 @@ exec "${BINPATH}/uwsgi" --http :$LD_SERVER_PORT uwsgi-run.ini
 EOF1
 )
 
+version=1.24.0
 make_docker_tarball \
-    sissbruecker/linkding:1.24.0 \
-    linkding 1.24.0 \
+    sissbruecker/linkding:${version} \
+    linkding ${version} \
     "$entrypoint" \
     /etc/linkding /linkding/app

@@ -15,8 +15,9 @@ node server.js
 EOF1
 )
 
+version=0.126.4
 make_docker_tarball \
-    lobehub/lobe-chat:v0.123.0 \
-    lobechat 0.123.0 \
+    lobehub/lobe-chat:v${version} \
+    lobechat ${version} \
     "$entrypoint" \
     /app /lobechat/app
