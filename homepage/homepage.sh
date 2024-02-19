@@ -15,8 +15,9 @@ node server.js
 EOF1
 )
 
+version=0.8.8
 make_docker_tarball \
-    ghcr.io/gethomepage/homepage:v0.8.7 \
-    homepage 0.8.7 \
+    ghcr.io/gethomepage/homepage:v${version} \
+    homepage ${version} \
     "$entrypoint" \
     /app /homepage/app
