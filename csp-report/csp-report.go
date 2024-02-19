@@ -18,6 +18,9 @@ import (
 //go:embed index.html
 var indexHTML []byte
 
+//go:embed auth.html
+var authHTML []byte
+
 type RotateWriter struct {
 	lock     sync.Mutex
 	filename string
@@ -111,6 +114,13 @@ func (lrw *loggingResponseWriter) WriteHeader(code int) {
 type handler func(w http.ResponseWriter, r *http.Request)
 
 func handle(pattern, method string, auth bool, f handler) {
+	mf := func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != method {
+			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		f(w, r)
+	}
 	http.HandleFunc(pattern, func(w http.ResponseWriter, r *http.Request) {
 		startTime := time.Now()
 		lw := NewLoggingResponseWriter(w)
@@ -119,16 +129,12 @@ func handle(pattern, method string, auth bool, f handler) {
 			log.Printf("%s %s %d %s", r.Method, r.URL.Path, lw.statusCode, time.Since(startTime))
 		}()
 		defer r.Body.Close()
-		if r.Method != method {
-			http.Error(lw, "Method Not Allowed", http.StatusMethodNotAllowed)
-			return
-		}
 		const maxBodySize = 1 << 20
 		r.Body = http.MaxBytesReader(w, r.Body, maxBodySize)
 		if auth {
-			authMiddleware(lw, r, f)
+			authMiddleware(lw, r, mf)
 		} else {
-			f(lw, r)
+			mf(lw, r)
 		}
 	})
 }
@@ -152,12 +158,13 @@ func authMiddleware(w http.ResponseWriter, r *http.Request, f handler) {
 
 	cookie, err := r.Cookie("token")
 	if err != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		w.Header().Add("Set-Cookie", "token=; Max-Age=0; Path=/; HttpOnly; SameSite=Strict")
+		sendHTML(w, authHTML)
 		return
 	}
 	if cookie.Value != authToken {
 		w.Header().Add("Set-Cookie", "token=; Max-Age=0; Path=/; HttpOnly; SameSite=Strict")
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		sendHTML(w, authHTML)
 		return
 	}
 	f(w, r)
@@ -280,18 +287,21 @@ func cspContent(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func index(w http.ResponseWriter, r *http.Request) {
+func sendHTML(w http.ResponseWriter, data []byte) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	w.Header().Set("Content-Length", strconv.Itoa(len(indexHTML)))
+	w.Header().Set("Content-Length", strconv.Itoa(len(data)))
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.Header().Set("X-Frame-Options", "DENY")
 	w.Header().Set("X-XSS-Protection", "1; mode=block")
 	w.Header().Set("Referrer-Policy", "no-referrer")
 	w.Header().Set("Content-Security-Policy", "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline';")
-
 	w.WriteHeader(http.StatusOK)
-	w.Write(indexHTML)
+	w.Write(data)
+}
+
+func index(w http.ResponseWriter, r *http.Request) {
+	sendHTML(w, indexHTML)
 }
 
 func cspTest(w http.ResponseWriter, r *http.Request) {
@@ -310,7 +320,11 @@ func cspTest(w http.ResponseWriter, r *http.Request) {
 var debugMode bool
 
 func main() {
-	authToken = hex.EncodeToString([]byte(os.Getenv("TOKEN")))
+	tkn := os.Getenv("TOKEN")
+	if tkn == "" {
+		log.Fatalf("env TOKEN not set")
+	}
+	authToken = hex.EncodeToString([]byte(tkn))
 	length, _ := strconv.Atoi(os.Getenv("MAX_LOG_SIZE"))
 	if length < 1<<20 {
 		length = 1 << 20
@@ -326,5 +340,6 @@ func main() {
 	if addr == "" {
 		addr = "localhost:9096"
 	}
+	log.Printf("server listen on: %s", addr)
 	log.Fatal(http.ListenAndServe(addr, nil))
 }
