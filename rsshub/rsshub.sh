@@ -17,6 +17,6 @@ EOF
 
 make_docker_tarball \
     diygod/rsshub:latest \
-    rsshub date +%Y-%m-%d \
+    rsshub "$(date +%Y-%m-%d)" \
     "$entrypoint" \
     /app /rsshub

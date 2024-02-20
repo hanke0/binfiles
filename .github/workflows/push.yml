@@ -1,0 +1,19 @@
+name: build
+run-name: ${{ github.actor }}
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: build
+        run: |
+          ./runall.sh
+      - name: artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: |
+            dist
