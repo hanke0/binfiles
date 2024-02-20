@@ -1,9 +1,6 @@
 name: build dist
 run-name: Build dist  start by ${{ github.actor }}
-on:
-  push:
-    branches:
-      - master
+on: push
 jobs:
   build:
     runs-on: ubuntu-latest
