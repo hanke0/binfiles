@@ -1,5 +1,5 @@
-name: build
-run-name: ${{ github.actor }}
+name: build dist
+run-name: Build dist  start by ${{ github.actor }}
 on:
   push:
     branches:
@@ -8,10 +8,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: build
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Build dist
         run: |
           ./runall.sh
-      - name: artifacts
+      - name: Archive artifacts
         uses: actions/upload-artifact@v4
         with:
           name: dist
