@@ -1,13 +1,12 @@
 #!/bin/bash
 
 repos=(
-    Yidadaa/ChatGPT-Next-Web 2.10.3
-    dani-garcia/vaultwarden 1.30.3
+    Yidadaa/ChatGPT-Next-Web 2.11.2
+    dani-garcia/vaultwarden 1.30.5
     timvisee/send 3.4.23
-    aaamoon/copilot-gpt4-service 0.1.0
     gethomepage/homepage 0.8.8
     sissbruecker/linkding 1.24.0
-    lobehub/lobe-chat 0.128.5
+    lobehub/lobe-chat 0.133.0
 )
 
 trip_version() {
