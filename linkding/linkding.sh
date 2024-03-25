@@ -62,7 +62,7 @@ exec "${BINPATH}/uwsgi" --http :$LD_SERVER_PORT uwsgi-run.ini
 EOF1
 )
 
-version=1.24.0
+version=1.25.0
 make_docker_tarball \
     sissbruecker/linkding:${version} \
     linkding ${version} \
