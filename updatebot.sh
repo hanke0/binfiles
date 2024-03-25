@@ -6,7 +6,7 @@ repos=(
     timvisee/send 3.4.23
     gethomepage/homepage 0.8.10
     sissbruecker/linkding 1.25.0
-    lobehub/lobe-chat 0.142.1
+    lobehub/lobe-chat 0.142.2
 )
 
 trip_version() {
