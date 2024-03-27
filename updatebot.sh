@@ -1,13 +1,25 @@
 #!/bin/bash
 
+findversion() {
+    local prefix version
+    prefix="$2"
+    if [ -z "$prefix" ]; then
+        prefix="version="
+    fi
+    grep -o -E "${prefix}[0-9]+\.[0-9]+\.[0-9]+" "$1" | sed "s/${prefix}//g"
+}
+
 repos=(
-    Yidadaa/ChatGPT-Next-Web 2.11.3
-    dani-garcia/vaultwarden 1.30.5
-    timvisee/send 3.4.23
-    gethomepage/homepage 0.8.10
-    sissbruecker/linkding 1.25.0
-    lobehub/lobe-chat 0.142.2
+    Yidadaa/ChatGPT-Next-Web "$(findversion chatgpt-next-web/chatgpt-next-web.sh)"
+    dani-garcia/vaultwarden "$(findversion vaultwarden/vaultwarden.sh)"
+    timvisee/send "$(findversion send/send.sh)"
+    gethomepage/homepage "$(findversion homepage/homepage.sh)"
+    sissbruecker/linkding "$(findversion linkding/linkding.sh)"
+    lobehub/lobe-chat "$(findversion lobechat/lobechat.sh)"
 )
+
+echo "${repos[@]}"
+exit 1
 
 trip_version() {
     grep -E -o '[0-9]+\.[0-9]+\.[0-9]+' <<<"$*"
