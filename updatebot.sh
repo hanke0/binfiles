@@ -18,9 +18,6 @@ repos=(
     lobehub/lobe-chat "$(findversion lobechat/lobechat.sh)"
 )
 
-echo "${repos[@]}"
-exit 1
-
 trip_version() {
     grep -E -o '[0-9]+\.[0-9]+\.[0-9]+' <<<"$*"
 }
@@ -45,9 +42,9 @@ version_satisfy() {
 
 dorepo() {
     local data version url
-    data=$(curl -sSL --fail "https://api.github.com/repos/$1/releases/latest")
+    data=$(curl -sL --fail "https://api.github.com/repos/$1/releases/latest")
     if [ -z "$data" ]; then
-        data=$(curl -sSL --fail "https://api.github.com/repos/$1/tags")
+        data=$(curl -sL --fail "https://api.github.com/repos/$1/tags")
         data=$(jq -r '.[0] | values' <<<"$data")
     fi
     version=$(jq -r ".name | values" <<<"$data")
@@ -69,6 +66,10 @@ dorepo() {
 
 doall() {
     while [ $# -gt 0 ]; do
+        if ! [[ "$2" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo >&2 "Cannot find version in $1"
+            exit 1
+        fi
         dorepo "$1" "$2"
         shift 2
     done
