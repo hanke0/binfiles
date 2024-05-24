@@ -14,7 +14,7 @@ node server.js
 EOF
 )
 
-version=2.12.2
+version=2.12.3
 tag=v${version}
 make_docker_tarball \
     yidadaa/chatgpt-next-web:$tag \
