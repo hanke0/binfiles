@@ -18,6 +18,6 @@ EOF1
 version=0.76.1
 make_docker_tarball \
     outlinewiki/outline:${version} \
-    lobechat ${version} \
+    outline ${version} \
     "$entrypoint" \
     /opt/outline /outline
