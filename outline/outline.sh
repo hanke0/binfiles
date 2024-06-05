@@ -16,8 +16,13 @@ EOF1
 )
 
 version=0.76.1
-make_docker_tarball \
-    outlinewiki/outline:${version} \
-    outline ${version} \
-    "$entrypoint" \
+image_url=outlinewiki/outline
+name=outline
+copy_files=(
+    # src dst pairs
     /opt/outline /outline
+)
+make_docker_tarball \
+    $image_url:${version} \
+    $name ${version} \
+    "$entrypoint" "${copy_files[@]}"
