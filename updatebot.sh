@@ -16,6 +16,7 @@ repos=(
     gethomepage/homepage "$(findversion homepage/homepage.sh)"
     sissbruecker/linkding "$(findversion linkding/linkding.sh)"
     lobehub/lobe-chat "$(findversion lobechat/lobechat.sh)"
+    outline/outline "$(findversion outline/outline.sh)"
 )
 
 trip_version() {
