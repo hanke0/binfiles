@@ -15,7 +15,7 @@ node server.js
 EOF1
 )
 
-version=1.17.6
+version=1.20.5
 make_docker_tarball \
     lobehub/lobe-chat:v${version} \
     lobechat ${version} \

@@ -15,7 +15,7 @@ node server.js
 EOF1
 )
 
-version=0.9.9
+version=0.9.10
 make_docker_tarball \
     ghcr.io/gethomepage/homepage:v${version} \
     homepage ${version} \
