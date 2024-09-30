@@ -13,6 +13,7 @@ for f in $files; do
     name=$(basename "$f")
     name="${name%.*}"
     echo "--- $f ----"
+    chmod +x "$f"
     "$f"
     echo "--- $f Exit $? ----"
     mv "${name}/${name}.tar.gz" "${name}/${name}.version" dist/
