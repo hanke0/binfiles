@@ -9,15 +9,13 @@ pwd
 
 entrypoint=$(
     cat <<'EOF1'
-#!/usr/bin/env bash
-set -e
-node server.js
 EOF1
 )
 
-version=1.21.0
+version=1.7.0
 make_docker_tarball \
-    lobehub/lobe-chat:v${version} \
-    lobechat ${version} \
+    googletranslate/koodo-reader:v${version} \
+    koodo-reader ${version} \
     "$entrypoint" \
-    /app /lobechat/app
+    /usr/share
+    /usr/share/nginx/html /koodo-reader
