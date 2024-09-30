@@ -17,5 +17,4 @@ make_docker_tarball \
     googletranslate/koodo-reader:v${version} \
     koodo-reader ${version} \
     "$entrypoint" \
-    /usr/share
     /usr/share/nginx/html /koodo-reader
