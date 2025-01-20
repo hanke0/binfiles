@@ -15,7 +15,7 @@ node ./build/server/index.js
 EOF1
 )
 
-version=0.80.2
+version=0.81.1
 image_url=outlinewiki/outline
 name=outline
 copy_files=(

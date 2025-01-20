@@ -12,7 +12,7 @@ entrypoint=$(
 EOF1
 )
 
-version=1.7.0
+version=1.7.4
 make_docker_tarball \
     googletranslate/koodo-reader:v${version} \
     koodo-reader ${version} \
