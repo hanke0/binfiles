@@ -15,7 +15,7 @@ vaultwarden
 EOF
 )
 
-version=1.32.7
+version=1.33.0
 make_docker_tarball \
     vaultwarden/server:${version}-alpine \
     vaultwarden ${version} \
