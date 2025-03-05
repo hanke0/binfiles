@@ -17,7 +17,7 @@ EOF1
 
 version=1.68.7
 make_docker_tarball \
-    lobehub/lobe-chat:v${version} \
+    lobehub/lobe-chat:${version} \
     lobechat ${version} \
     "$entrypoint" \
     /app /lobechat/app
