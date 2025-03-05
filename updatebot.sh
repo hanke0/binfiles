@@ -17,7 +17,6 @@ repos=(
     sissbruecker/linkding "$(findversion linkding/linkding.sh)"
     lobehub/lobe-chat "$(findversion lobechat/lobechat.sh)"
     outline/outline "$(findversion outline/outline.sh)"
-    koodo-reader/koodo-reader "$(findversion koodo-reader/koodo-reader.sh)"
 )
 
 trip_version() {
